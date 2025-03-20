@@ -1,0 +1,22 @@
+image: docker:26.0.1
+
+services:
+  - docker:26.0.1-dind
+
+before_script:
+  - docker info
+
+variables:
+  IMAGE_NAME: docker.io/YOUR_DOCKERHUB_USERNAME/ansible-in-docker-container
+
+build_image:
+  tags:
+    - general
+  script:
+    - export TIMESTAMP=$(date +%Y-%m-%d-%H%M%S)
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE_NAME:$TIMESTAMP .
+    - docker tag $IMAGE_NAME:$TIMESTAMP $IMAGE_NAME:latest
+    - docker push $IMAGE_NAME:$TIMESTAMP
+    - docker push $IMAGE_NAME:latest
+
